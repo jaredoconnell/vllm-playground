@@ -12,9 +12,6 @@ hf_token = os.environ.get("HF_TOKEN")
 # Check environment with:
 # python .venv/lib64/python3.9/site-packages/vllm/collect_env.py
 
-engine_args = AsyncEngineArgs(model=model, hf_token=hf_token)
-llm_engine = AsyncLLMEngine.from_engine_args(engine_args)
-
 async def handle_llm_output(
     generator: AsyncGenerator[RequestOutput, None],
     start_time: float,
@@ -58,6 +55,10 @@ async def handle_llm_output(
             # )
 
 async def main():
+
+    engine_args = AsyncEngineArgs(model=model, hf_token=hf_token)
+    llm_engine = AsyncLLMEngine.from_engine_args(engine_args)
+
     params = SamplingParams(
         max_tokens=output_token_count,
         # Set min token count?
@@ -66,7 +67,10 @@ async def main():
     request_id = "request_" + str(int(time.time()))
     start_time = time.time()
     llm_generator = llm_engine.generate("write a summary of the purpose of HTML", params, request_id)
-    await handle_llm_output(llm_generator, start_time, request_id)
+    future = await handle_llm_output(llm_generator, start_time, request_id)
+    #future = asyncio.run_coroutine_threadsafe(handle_llm_output(llm_generator, start_time, request_id), main_loop)
+    result = future.result()
+    print(result)
 
 if __name__ == "__main__":
     asyncio.run(main())
