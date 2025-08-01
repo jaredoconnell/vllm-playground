@@ -57,12 +57,16 @@ async def handle_llm_output(
             #     request_id=request_id,
             # )
 
-params = SamplingParams(
-    max_tokens = output_token_count,
-    # Set min token count?
-)
+async def main():
+    params = SamplingParams(
+        max_tokens=output_token_count,
+        # Set min token count?
+    )
 
-request_id = "request_" + str(int(time.time()))
-start_time = time.time()
-llm_generator = llm_engine.generate("write a summary of the purpose of HTML", params, request_id)
-asyncio.run(handle_llm_output(llm_generator, start_time, request_id))
+    request_id = "request_" + str(int(time.time()))
+    start_time = time.time()
+    llm_generator = llm_engine.generate("write a summary of the purpose of HTML", params, request_id)
+    await handle_llm_output(llm_generator, start_time, request_id)
+
+if __name__ == "__main__":
+    asyncio.run(main())
