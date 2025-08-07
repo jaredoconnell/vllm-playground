@@ -4,7 +4,8 @@ import time
 import os
 import asyncio
 
-model = "meta-llama/Llama-3.2-1B"
+# Note: The Llama models don't appear to support chat.
+model = "HuggingFaceH4/zephyr-7b-beta"
 output_token_count = 512
 
 hf_token = os.environ.get("HF_TOKEN")
@@ -61,13 +62,27 @@ async def main():
 
     params = SamplingParams(
         max_tokens=output_token_count,
-        temperature=1, top_p=0.95,
+        temperature=0.9, top_p=0.95,
         # Set min token count?
     )
 
     request_id = "request_" + str(int(time.time()))
     start_time = time.time()
-    llm_generator = llm_engine.generate("How can I write a function in Java?", params, request_id)
+    tokenizer = await llm_engine.get_tokenizer()
+    prompt = "How can I write a function in Java?"
+    conversation =  [
+
+        {"role": "system", "content": "You are a helpful assistant that provides concise answers."},
+        {"role": "user", "content": prompt}
+    ]
+    llm_input = tokenizer.apply_chat_template(
+        conversation=conversation,
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+
+
+    llm_generator = llm_engine.generate(llm_input, params, request_id)
     await handle_llm_output(llm_generator, start_time, request_id)
 
 
