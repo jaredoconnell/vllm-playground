@@ -5,7 +5,8 @@ import os
 import asyncio
 
 # Note: The Llama models don't appear to support chat.
-model = "HuggingFaceH4/zephyr-7b-beta"
+#model = "HuggingFaceH4/zephyr-7b-beta"
+model = "ibm-granite/granite-3.3-2b-instruct"
 output_token_count = 512
 
 hf_token = os.environ.get("HF_TOKEN")
